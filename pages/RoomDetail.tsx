@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getRooms, Icons } from '../constants';
 
@@ -19,6 +19,20 @@ const RoomDetail: React.FC = () => {
   const [checkIn, setCheckIn] = useState('2026-12-01');
   const [checkOut, setCheckOut] = useState('2026-12-05');
   const [guests, setGuests] = useState(1);
+  const [showGalleryModal, setShowGalleryModal] = useState(false);
+  const [galleryIndex, setGalleryIndex] = useState(0);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Touch handling for horizontal scroll
+  const handleScroll = (direction: 'left' | 'right') => {
+    if (scrollRef.current) {
+      const scrollAmount = scrollRef.current.clientWidth;
+      scrollRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
 
   if (!room) {
     return (
@@ -44,6 +58,23 @@ const RoomDetail: React.FC = () => {
   const handleSave = () => {
     setIsSaved(!isSaved);
     showNotification(isSaved ? 'Removed from wishlist' : 'Saved to wishlist');
+  };
+
+  const openGallery = (index: number) => {
+    setGalleryIndex(index);
+    setShowGalleryModal(true);
+  };
+
+  const closeGallery = () => {
+    setShowGalleryModal(false);
+  };
+
+  const nextImage = () => {
+    setGalleryIndex((prev) => (prev + 1) % images.length);
+  };
+
+  const prevImage = () => {
+    setGalleryIndex((prev) => (prev - 1 + images.length) % images.length);
   };
 
   const images = room.gallery || [room.imageUrl];
@@ -106,18 +137,72 @@ const RoomDetail: React.FC = () => {
 
         <h1 className="text-3xl font-black text-zinc-950 dark:text-white mb-6 tracking-tight">{room.name}</h1>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-4 h-[300px] md:h-[500px] rounded-3xl overflow-hidden border border-zinc-100 dark:border-zinc-800 shadow-sm">
-          <div className="md:col-span-2 md:row-span-2 overflow-hidden">
-            <img src={images[0]} alt="" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700 cursor-pointer" />
+        {/* Desktop Gallery Grid */}
+        <div className="hidden md:grid grid-cols-4 grid-rows-2 gap-4 h-[500px] rounded-3xl overflow-hidden border border-zinc-100 dark:border-zinc-800 shadow-sm">
+          <div className="col-span-2 row-span-2 overflow-hidden">
+            <img src={images[0]} alt="" onClick={() => openGallery(0)} className="w-full h-full object-cover hover:scale-105 transition-transform duration-700 cursor-pointer" />
           </div>
-          <div className="hidden md:block overflow-hidden"><img src={images[1] || images[0]} alt="" className="w-full h-full object-cover hover:scale-105" /></div>
-          <div className="hidden md:block overflow-hidden"><img src={images[2] || images[0]} alt="" className="w-full h-full object-cover hover:scale-105" /></div>
-          <div className="hidden md:block overflow-hidden"><img src={images[3] || images[0]} alt="" className="w-full h-full object-cover hover:scale-105" /></div>
-          <div className="hidden md:block overflow-hidden relative">
-            <img src={images[4] || images[0]} alt="" className="w-full h-full object-cover hover:scale-105" />
-            <button onClick={() => showNotification('Opening full gallery...', 'info')} className="absolute bottom-6 right-6 px-4 py-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm font-bold shadow-xl hover:scale-105 transition-all">
-              Show all photos
-            </button>
+          <div className="overflow-hidden"><img src={images[1] || images[0]} alt="" onClick={() => openGallery(1)} className="w-full h-full object-cover hover:scale-105 cursor-pointer" /></div>
+          <div className="overflow-hidden"><img src={images[2] || images[0]} alt="" onClick={() => openGallery(2)} className="w-full h-full object-cover hover:scale-105 cursor-pointer" /></div>
+          <div className="overflow-hidden relative">
+            <img src={images[3] || images[0]} alt="" onClick={() => openGallery(3)} className="w-full h-full object-cover hover:scale-105 cursor-pointer" />
+            {images.length > 4 && (
+              <button onClick={() => openGallery(4)} className="absolute bottom-6 right-6 px-4 py-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm font-bold shadow-xl hover:scale-105 transition-all">
+                +{images.length - 4} more
+              </button>
+            )}
+          </div>
+          <div className="overflow-hidden relative">
+            <img src={images[4] || images[0]} alt="" onClick={() => openGallery(4)} className="w-full h-full object-cover hover:scale-105 cursor-pointer" />
+          </div>
+        </div>
+
+        {/* Mobile Horizontal Gallery */}
+        <div className="md:hidden">
+          <div className="relative">
+            <div 
+              ref={scrollRef}
+              className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-4 scrollbar-hide"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              {images.map((img, index) => (
+                <div 
+                  key={index} 
+                  className="flex-shrink-0 w-[280px] h-[280px] snap-center rounded-2xl overflow-hidden"
+                  onClick={() => openGallery(index)}
+                >
+                  <img 
+                    src={img} 
+                    alt="" 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ))}
+            </div>
+            {images.length > 1 && (
+              <>
+                <button 
+                  onClick={() => handleScroll('left')}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-white/90 dark:bg-zinc-900/90 rounded-full shadow-lg"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+                </button>
+                <button 
+                  onClick={() => handleScroll('right')}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-white/90 dark:bg-zinc-900/90 rounded-full shadow-lg"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+                </button>
+              </>
+            )}
+          </div>
+          <div className="flex justify-center mt-3 gap-1">
+            {images.map((_, index) => (
+              <div 
+                key={index} 
+                className={`w-2 h-2 rounded-full ${index === 0 ? 'bg-red-600' : 'bg-zinc-300 dark:bg-zinc-700'}`}
+              />
+            ))}
           </div>
         </div>
       </div>
@@ -207,6 +292,44 @@ const RoomDetail: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Gallery Modal */}
+      {showGalleryModal && (
+        <div className="fixed inset-0 z-[100] bg-black flex items-center justify-center animate-in fade-in duration-200">
+          <button 
+            onClick={closeGallery}
+            className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white z-10"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </button>
+          
+          <button 
+            onClick={prevImage}
+            className="absolute left-4 p-3 bg-white/10 hover:bg-white/20 rounded-full text-white"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          
+          <div className="w-full h-full flex items-center justify-center p-4">
+            <img 
+              src={images[galleryIndex]} 
+              alt=""
+              className="max-w-full max-h-full object-contain"
+            />
+          </div>
+          
+          <button 
+            onClick={nextImage}
+            className="absolute right-4 p-3 bg-white/10 hover:bg-white/20 rounded-full text-white"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+          
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white font-bold">
+            {galleryIndex + 1} / {images.length}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

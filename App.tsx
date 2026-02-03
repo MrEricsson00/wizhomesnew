@@ -18,50 +18,152 @@ import { doc, getDoc } from 'firebase/firestore';
 
 const Navbar: React.FC<{ theme: string; toggleTheme: () => void; user: any | null; role: string | null }> = ({ theme, toggleTheme, user, role }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
   const isHidden = location.pathname === '/login' || location.pathname === '/checkout' || location.pathname === '/success';
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   if (isHidden) return null;
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
+  const navLinks = [
+    { path: '/', label: 'Home' },
+    { path: '/rooms', label: 'Inventory' },
+    { path: '/contact', label: 'Contact' },
+  ];
+
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-zinc-100 dark:border-zinc-800 transition-colors duration-300">
+      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white/95 dark:bg-zinc-950/95 shadow-sm' : 'bg-white/90 dark:bg-zinc-950/90'} backdrop-blur-md border-b border-zinc-100 dark:border-zinc-800`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-24">
-            <div className="flex items-center">
-              <Link to="/" className="group py-2">
-                <Logo className="h-10 md:h-12 transform transition-transform group-hover:scale-105" />
-              </Link>
-            </div>
+          <div className="flex justify-between items-center h-20">
+            {/* Logo */}
+            <Link to="/" className="flex items-center py-2 group">
+              <Logo className="h-9 transform transition-transform group-hover:scale-105" />
+            </Link>
             
-            <div className="hidden md:flex items-center space-x-12">
-              <Link to="/" className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600 dark:text-zinc-400 hover:text-red-600 dark:hover:text-red-500 transition-colors">Home</Link>
-              <Link to="/rooms" className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600 dark:text-zinc-400 hover:text-red-600 dark:hover:text-red-500 transition-colors">Inventory</Link>
-              <Link to="/contact" className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600 dark:text-zinc-400 hover:text-red-600 dark:hover:text-red-500 transition-colors">Contact</Link>
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-1">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  className={`relative px-4 py-2 text-sm font-medium transition-colors duration-200 ${location.pathname === link.path
+                    ? 'text-red-600 dark:text-red-500'
+                    : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
+                  }`}
+                >
+                  {link.label}
+                  {location.pathname === link.path && (
+                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 bg-red-600 dark:bg-red-500 rounded-full" />
+                  )}
+                </Link>
+              ))}
             </div>
 
-            <div className="flex items-center space-x-4">
-              <button onClick={toggleTheme} className="p-3 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-2xl transition-all">
-                {theme === 'light' ? <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg> : <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2m-7.07-15.07 1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2m-15.66 5.66 1.41-1.41m11.32-11.32 1.41-1.41"/></svg>}
+            {/* Right Actions */}
+            <div className="flex items-center space-x-2">
+              {/* Theme Toggle */}
+              <button
+                onClick={toggleTheme}
+                className="p-2.5 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition-all duration-200"
+                aria-label="Toggle theme"
+              >
+                {theme === 'light' ? (
+                  <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                    <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+                  </svg>
+                ) : (
+                  <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="4" />
+                    <path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41m11.32-11.32l1.41-1.41" />
+                  </svg>
+                )}
               </button>
-              <button onClick={toggleMenu} className="md:hidden p-3 text-zinc-950 dark:text-white">
-                <Icons.Menu />
+
+              {/* Mobile Menu Button */}
+              <button
+                onClick={toggleMenu}
+                className="md:hidden p-2.5 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition-all duration-200"
+                aria-label="Menu"
+              >
+                <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                  {isMenuOpen ? (
+                    <path d="M6 18L18 6M6 6l12 12" />
+                  ) : (
+                    <path d="M3 12h18M3 6h18M3 18h18" />
+                  )}
+                </svg>
               </button>
             </div>
           </div>
         </div>
       </nav>
 
-      {/* Mobile Menu */}
-      <div className={`fixed inset-0 z-[60] bg-black/90 backdrop-blur-xl transition-transform duration-500 p-12 flex flex-col justify-center ${isMenuOpen ? 'translate-y-0' : '-translate-y-full'}`}>
-        <button onClick={toggleMenu} className="absolute top-12 right-12 text-white text-3xl">✕</button>
-        <nav className="flex flex-col space-y-12">
-          <Link to="/" onClick={toggleMenu} className="text-6xl font-black uppercase tracking-tighter text-white">Home</Link>
-          <Link to="/rooms" onClick={toggleMenu} className="text-6xl font-black uppercase tracking-tighter text-white">Inventory</Link>
-          <Link to="/contact" onClick={toggleMenu} className="text-6xl font-black uppercase tracking-tighter text-white">Contact</Link>
-        </nav>
+      {/* Mobile Menu Overlay */}
+      <div className={`fixed inset-0 z-[60] bg-white dark:bg-zinc-950 transition-transform duration-300 ${isMenuOpen ? 'translate-y-0' : '-translate-y-full'}`}>
+        <div className="flex flex-col h-full">
+          {/* Mobile Menu Header */}
+          <div className="flex justify-between items-center px-6 py-5 border-b border-zinc-100 dark:border-zinc-800">
+            <Logo className="h-8" />
+            <button
+              onClick={toggleMenu}
+              className="p-2 text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all"
+            >
+              <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                <path d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          
+          {/* Mobile Navigation Links */}
+          <nav className="flex-1 flex flex-col justify-center px-6 space-y-4">
+            {navLinks.map((link, index) => (
+              <Link
+                key={link.path}
+                to={link.path}
+                onClick={toggleMenu}
+                className={`text-3xl font-bold tracking-tight py-3 transition-colors duration-200 ${
+                  location.pathname === link.path
+                    ? 'text-red-600 dark:text-red-500'
+                    : 'text-zinc-900 dark:text-white hover:text-red-600 dark:hover:text-red-500'
+                }`}
+                style={{ animationDelay: `${index * 0.05}s` }}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+          
+          {/* Mobile Menu Footer */}
+          <div className="px-6 py-6 border-t border-zinc-100 dark:border-zinc-800">
+            <div className="flex items-center justify-end">
+              <button
+                onClick={toggleTheme}
+                className="p-2.5 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition-all"
+              >
+                {theme === 'light' ? (
+                  <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                    <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+                  </svg>
+                ) : (
+                  <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="4" />
+                    <path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2" />
+                  </svg>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </>
   );
