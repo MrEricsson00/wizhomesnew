@@ -1,17 +1,44 @@
 import React, { useState } from 'react';
 import { Icons } from '../constants';
 
+const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xpqlbapl';
+
 const Contact: React.FC = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
+    setError(null);
+
+    const formData = new FormData(e.currentTarget);
+    const data = {
+      name: formData.get('name'),
+      email: formData.get('email'),
+      message: formData.get('message'),
+    };
+
+    try {
+      const response = await fetch(FORMSPREE_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        setIsSubmitted(true);
+      } else {
+        setError('Failed to send message. Please try again.');
+      }
+    } catch (err) {
+      setError('Failed to send message. Please try again.');
+    } finally {
       setLoading(false);
-      setIsSubmitted(true);
-    }, 1200);
+    }
   };
 
   return (
@@ -61,23 +88,23 @@ const Contact: React.FC = () => {
               <button onClick={() => setIsSubmitted(false)} className="px-8 py-3 border border-zinc-950 dark:border-white font-bold rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">Send another message</button>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-6 w-full">
+            <form action={FORMSPREE_ENDPOINT} method="POST" onSubmit={handleSubmit} className="space-y-6 w-full">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-xs font-black uppercase tracking-widest text-zinc-500">Full Name</label>
-                  <input type="text" required placeholder="John Doe" className="w-full px-6 py-4 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-600/20" />
+                  <input type="text" name="name" required placeholder="John Doe" className="w-full px-6 py-4 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-600/20" />
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-black uppercase tracking-widest text-zinc-500">Email Address</label>
-                  <input type="email" required placeholder="john@example.com" className="w-full px-6 py-4 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-600/20" />
+                  <input type="email" name="email" required placeholder="john@example.com" className="w-full px-6 py-4 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-600/20" />
                 </div>
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-black uppercase tracking-widest text-zinc-500">Your Message</label>
-                <textarea rows={5} required placeholder="How can we help you?" className="w-full px-6 py-4 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-600/20 resize-none"></textarea>
+                <textarea name="message" rows={5} required placeholder="How can we help you?" className="w-full px-6 py-4 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-600/20 resize-none"></textarea>
               </div>
               <button type="submit" disabled={loading} className="w-full py-5 bg-red-600 text-white font-black rounded-xl hover:bg-red-700 transition-all flex items-center justify-center">
-                {loading ? 'Sending...' : 'Send Message'}
+                {loading ? 'Sending...' : error ? error : 'Send Message'}
               </button>
             </form>
           )}
