@@ -1,0 +1,8 @@
+{
+  "name": "WIZ HOMES",
+  "description": "A premium, modern Airbnb-style platform for luxury apartment rentals, featuring high-end design, room management, and a comprehensive admin dashboard.",
+  "requestFramePermissions": [
+    "camera",
+    "geolocation"
+  ]
+}
