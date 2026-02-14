@@ -8,7 +8,7 @@ import { doc, setDoc } from 'firebase/firestore';
 
 // Default admin credentials
 const DEFAULT_ADMIN_EMAIL = 'admin@wizhomes.com';
-const DEFAULT_ADMIN_PASSWORD = 'WizHomes2024!';
+const DEFAULT_ADMIN_PASSWORD = 'WizHomes2024';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
