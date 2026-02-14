@@ -15,6 +15,17 @@ const UNIFORM_AMENITIES = [
   'Tv'
 ];
 
+const LONG_STAY_AMENITIES = [
+  'High speed Wi-Fi connection',
+  'Air conditioning',
+  'Beach access (Guests can be driven to nearby beaches)',
+  'Exercise equipment',
+  'Fire extinguisher',
+  'Free parking on premise (Parking on-site that\'s free of charge)',
+  'Kitchen',
+  'Smoke alarms',
+];
+
 export const MOCK_ROOMS: Room[] = [
   {
     id: 'wiz-short-stay-01',
@@ -48,7 +59,7 @@ export const MOCK_ROOMS: Room[] = [
     price: 4000,
     priceFrequency: 'month',
     status: RoomStatus.AVAILABLE,
-    amenities: UNIFORM_AMENITIES,
+    amenities: LONG_STAY_AMENITIES,
     imageUrl: '/wiz urban residence 1.jpeg',
     gallery: [
       '/wiz urban residence 1.jpeg',
