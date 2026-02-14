@@ -175,8 +175,15 @@ const ProtectedRoute: React.FC<{
   role: string | null; 
   allowedRoles: string[]; 
 }> = ({ children, role, allowedRoles }) => {
-  if (role === null) return <div className="min-h-screen flex items-center justify-center bg-zinc-950 text-white font-black uppercase tracking-widest text-xs animate-pulse">Authenticating Security Clearance...</div>;
-  if (!role || !allowedRoles.includes(role)) return <Navigate to="/rooms" replace />;
+  // Check for admin session in localStorage
+  const isAdminSession = typeof window !== 'undefined' && localStorage.getItem('wiz_admin_session') === 'true';
+  
+  if (role === null && !isAdminSession) return <div className="min-h-screen flex items-center justify-center bg-zinc-950 text-white font-black uppercase tracking-widest text-xs animate-pulse">Authenticating Security Clearance...</div>;
+  
+  // Allow access if role matches or if admin session exists
+  const hasAccess = role && allowedRoles.includes(role);
+  if (!hasAccess && !isAdminSession) return <Navigate to="/rooms" replace />;
+  
   return <>{children}</>;
 };
 
