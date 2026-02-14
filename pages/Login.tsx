@@ -60,17 +60,22 @@ const Login: React.FC = () => {
         
         await updateProfile(user, { displayName });
 
-        await setDoc(doc(db, 'users', user.uid), {
-          uid: user.uid,
-          email: user.email,
-          displayName,
-          role: 'Guest',
-          joinedAt: new Date().toISOString()
-        });
+        // Try to save user data to Firestore (may fail if permissions are restricted)
+        try {
+          await setDoc(doc(db, 'users', user.uid), {
+            uid: user.uid,
+            email: user.email,
+            displayName,
+            role: 'Guest',
+            joinedAt: new Date().toISOString()
+          });
+        } catch (firestoreErr) {
+          console.warn("Could not save user data to Firestore:", firestoreErr);
+        }
       } else {
         await signInWithEmailAndPassword(auth, email, password);
         // Redirect admins to admin page
-        if (email.toLowerCase() === 'wizhomes1@gmail.com') {
+        if (email.toLowerCase() === 'wizhomes1@gmail.com' || email.toLowerCase() === DEFAULT_ADMIN_EMAIL) {
           navigate('/admin');
         } else {
           navigate('/rooms');
@@ -87,6 +92,8 @@ const Login: React.FC = () => {
         setError('Password should be at least 6 characters.');
       } else if (err.code === 'auth/invalid-email') {
         setError('Please enter a valid email address.');
+      } else if (err.code === 'permission-denied' || err.message?.includes('permission')) {
+        setError('Unable to create account. Please try again or contact support.');
       } else {
         setError(err.message || 'Authentication failed. Please check your credentials.');
       }
