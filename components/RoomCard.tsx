@@ -32,11 +32,6 @@ const RoomCard: React.FC<RoomCardProps> = ({ room }) => {
           alt={room.name} 
           className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
         />
-        <div className="absolute top-4 left-4">
-          <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm ${getStatusColor(room.status)}`}>
-            {room.status}
-          </span>
-        </div>
         <button 
           onClick={(e) => {
             e.stopPropagation();
