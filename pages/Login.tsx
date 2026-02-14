@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Logo } from '../constants';
 // Fix: Importing auth methods from centralized local firebase module to fix export member errors
-import { auth, db, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from '../firebase';
+import { auth, db, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, sendPasswordResetEmail } from '../firebase';
 import { doc, setDoc } from 'firebase/firestore';
 
 const Login: React.FC = () => {
@@ -14,6 +14,24 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [resetSent, setResetSent] = useState(false);
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      setError('Please enter your email address first');
+      return;
+    }
+    setIsLoading(true);
+    setError(null);
+    try {
+      await sendPasswordResetEmail(auth, email);
+      setResetSent(true);
+    } catch (err: any) {
+      setError(err.message || 'Failed to send reset email');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,6 +87,12 @@ const Login: React.FC = () => {
               </div>
             )}
 
+            {resetSent && (
+              <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-900/50 rounded-xl text-green-600 dark:text-green-400 text-xs font-bold uppercase tracking-widest text-center">
+                Password reset email sent! Check your inbox.
+              </div>
+            )}
+
             <form onSubmit={handleAuth} className="space-y-6">
               {isRegistering && (
                 <div className="space-y-2 animate-in slide-in-from-top-4 duration-300">
@@ -106,7 +130,7 @@ const Login: React.FC = () => {
                     Password
                   </label>
                   {!isRegistering && (
-                    <button type="button" className="text-[10px] font-bold text-red-600 hover:underline">
+                    <button type="button" onClick={handleForgotPassword} className="text-[10px] font-bold text-red-600 hover:underline">
                       Forgot Password?
                     </button>
                   )}
