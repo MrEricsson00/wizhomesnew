@@ -15,7 +15,7 @@ const Home: React.FC = () => {
       <section className="relative h-[90vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img 
-            src="https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?auto=format&fit=crop&q=80&w=2084" 
+            src="/homepage.jpeg" 
             className="w-full h-full object-cover object-center scale-105 animate-pulse-slow"
             alt="WIZ HOMES Luxury Building"
           />
