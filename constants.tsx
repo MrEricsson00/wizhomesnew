@@ -44,7 +44,7 @@ export const MOCK_ROOMS: Room[] = [
   },
   {
     id: 'wiz-apt-02',
-    name: 'WIZ Urban Residence',
+    name: 'WIZ Long Stay Apartments',
     price: 4000,
     priceFrequency: 'month',
     status: RoomStatus.AVAILABLE,
