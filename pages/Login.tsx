@@ -55,9 +55,13 @@ const Login: React.FC = () => {
         });
       } else {
         await signInWithEmailAndPassword(auth, email, password);
+        // Redirect admins to admin page
+        if (email.toLowerCase() === 'wizhomes1@gmail.com') {
+          navigate('/admin');
+        } else {
+          navigate('/rooms');
+        }
       }
-      
-      navigate('/rooms');
     } catch (err: any) {
       console.error("Authentication process failure:", err);
       setError(err.message || 'Authentication failed. Please check your credentials.');
