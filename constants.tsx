@@ -17,24 +17,6 @@ const UNIFORM_AMENITIES = [
 
 export const MOCK_ROOMS: Room[] = [
   {
-    id: 'wiz-airbnb-01',
-    name: 'WIZ Luxe Furnished Suite',
-    price: 1000,
-    priceFrequency: 'night',
-    status: RoomStatus.AVAILABLE,
-    amenities: UNIFORM_AMENITIES,
-    imageUrl: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&q=80&w=1200',
-    gallery: [
-      'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&q=80&w=1200',
-      'https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&q=80&w=1200',
-      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=1200',
-      'https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?auto=format&fit=crop&q=80&w=1200'
-    ],
-    rating: 4.9,
-    location: 'Wiz Homes',
-    description: 'A fully furnished, turn-key Airbnb experience. This suite features bespoke WIZ furniture, a fully equipped kitchen, and high-end electronics. Designed for travelers who desire the comfort of a home with the luxury of a hotel.'
-  },
-  {
     id: 'wiz-short-stay-01',
     name: 'WIZ Short Stay Apartment',
     price: 1000,
