@@ -11,6 +11,9 @@ import { doc, setDoc, getDoc } from 'firebase/firestore';
 // or specific emails like wizhomes1@gmail.com, nana@wizhomes.com
 // The role is stored in Firestore database for security
 
+// Default admin email - change this to your desired admin email
+const DEFAULT_ADMIN_EMAIL = 'admin@wizhomes.com';
+
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
@@ -51,22 +54,43 @@ const Login: React.FC = () => {
         
         await updateProfile(user, { displayName });
 
-        // Save user data to Firestore - set role as Guest initially
+        // Determine role based on email - admin emails get Operator role
+        const isAdminEmail = email.toLowerCase().includes('admin') || 
+                            email.toLowerCase() === 'wizhomes1@gmail.com' ||
+                            email.toLowerCase() === 'nana@wizhomes.com' ||
+                            email.toLowerCase() === DEFAULT_ADMIN_EMAIL;
+        const userRole = isAdminEmail ? 'Operator' : 'Guest';
+
+        // Save user data to Firestore
         try {
           await setDoc(doc(db, 'users', user.uid), {
             uid: user.uid,
             email: user.email,
             displayName,
-            role: 'Guest',
+            role: userRole,
             joinedAt: new Date().toISOString()
           });
         } catch (firestoreErr) {
           console.warn("Could not save user data to Firestore:", firestoreErr);
         }
 
-        navigate('/rooms');
+        // If admin, redirect to admin page
+        if (isAdminEmail) {
+          localStorage.setItem('wiz_admin_session', 'true');
+          navigate('/admin');
+        } else {
+          navigate('/rooms');
+        }
       } else {
         await signInWithEmailAndPassword(auth, email, password);
+        
+        // Check if this is the default admin email
+        if (email.toLowerCase() === DEFAULT_ADMIN_EMAIL) {
+          localStorage.setItem('wiz_admin_session', 'true');
+          navigate('/admin');
+          return;
+        }
+        
         // Check user role and redirect accordingly
         try {
           const userDoc = await getDoc(doc(db, 'users', auth.currentUser?.uid));

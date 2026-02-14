@@ -14,7 +14,34 @@ import Profile from './pages/Profile';
 import Concierge from './components/Concierge';
 // Fix: Import onAuthStateChanged from centralized local firebase module to fix export error
 import { auth, db, onAuthStateChanged } from './firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+
+// Default admin configuration
+const DEFAULT_ADMIN_EMAIL = 'admin@wizhomes.com';
+const DEFAULT_ADMIN_UID = 'default-admin-001';
+
+// Function to ensure admin exists in Firestore
+const ensureAdminExists = async () => {
+  try {
+    const adminDocRef = doc(db, 'users', DEFAULT_ADMIN_UID);
+    const adminDoc = await getDoc(adminDocRef);
+    
+    if (!adminDoc.exists()) {
+      // Create default admin document
+      await setDoc(adminDocRef, {
+        uid: DEFAULT_ADMIN_UID,
+        email: DEFAULT_ADMIN_EMAIL,
+        displayName: 'Administrator',
+        role: 'Operator',
+        isDefaultAdmin: true,
+        createdAt: new Date().toISOString()
+      });
+      console.log('Default admin created in Firestore');
+    }
+  } catch (error) {
+    console.error('Error ensuring admin exists:', error);
+  }
+};
 
 const Navbar: React.FC<{ theme: string; toggleTheme: () => void; user: any | null; role: string | null }> = ({ theme, toggleTheme, user, role }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -206,6 +233,9 @@ const AppContent = () => {
   });
 
   useEffect(() => {
+    // Ensure default admin exists in Firestore on app load
+    ensureAdminExists();
+
     // Check for default admin session first (works without Firebase)
     const adminSession = localStorage.getItem('wiz_admin_session');
     if (adminSession === 'true') {

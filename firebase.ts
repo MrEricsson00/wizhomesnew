@@ -8,7 +8,7 @@ import * as FirebaseAnalytics from 'firebase/analytics';
 // Extract members from namespaces to provide stable exports
 const { initializeApp } = FirebaseApp as any;
 const { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, sendPasswordResetEmail } = FirebaseAuth as any;
-const { getFirestore } = FirebaseFirestore as any;
+const { getFirestore, collection, doc, setDoc, getDoc } = FirebaseFirestore as any;
 const { getAnalytics } = FirebaseAnalytics as any;
 
 // Updated with the user's live Firebase project configuration
@@ -35,7 +35,11 @@ export {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   updateProfile,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
+  collection,
+  doc,
+  setDoc,
+  getDoc
 };
 
 export default app;
