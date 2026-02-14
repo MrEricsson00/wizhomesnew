@@ -187,13 +187,19 @@ const AppContent = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Check for default admin session first (works without Firebase)
+    const adminSession = localStorage.getItem('wiz_admin_session');
+    if (adminSession === 'true') {
+      setRole('Operator');
+    }
+
     // Fix: Using onAuthStateChanged from centralized firebase module
     const unsubscribe = onAuthStateChanged(auth, async (currentUser: any) => {
       setUser(currentUser);
       
-      // Check for default admin session
-      const adminSession = localStorage.getItem('wiz_admin_session');
-      if (adminSession === 'true') {
+      // If we already have admin session, keep it
+      const storedAdminSession = localStorage.getItem('wiz_admin_session');
+      if (storedAdminSession === 'true') {
         setRole('Operator');
         setLoading(false);
         return;
