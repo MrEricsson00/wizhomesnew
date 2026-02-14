@@ -35,6 +35,32 @@ export const MOCK_ROOMS: Room[] = [
     description: 'A fully furnished, turn-key Airbnb experience. This suite features bespoke WIZ furniture, a fully equipped kitchen, and high-end electronics. Designed for travelers who desire the comfort of a home with the luxury of a hotel.'
   },
   {
+    id: 'wiz-short-stay-01',
+    name: 'WIZ Short Stay Apartment',
+    price: 1000,
+    priceFrequency: 'night',
+    status: RoomStatus.AVAILABLE,
+    amenities: UNIFORM_AMENITIES,
+    imageUrl: '/room1.jpeg',
+    gallery: [
+      '/room1.jpeg',
+      '/room2.jpeg',
+      '/room3.jpeg',
+      '/room4,.jpeg',
+      '/room5,.jpeg',
+      '/room6,.jpeg',
+      '/room7,.jpeg',
+      '/room8,.jpeg',
+      '/room9,.jpeg',
+      '/room10..jpeg',
+      '/room11,,.jpeg',
+      '/room13 (2).jpeg'
+    ],
+    rating: 4.8,
+    location: 'Wiz Homes',
+    description: 'Perfect for short stays, this modern apartment offers all the amenities you need for a comfortable visit. Ideal for business travelers or tourists exploring the city. Features a cozy bedroom, fully equipped kitchen, and convenient location.'
+  },
+  {
     id: 'wiz-apt-02',
     name: 'WIZ Urban Residence',
     price: 4000,
