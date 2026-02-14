@@ -51,17 +51,31 @@ const Login: React.FC = () => {
         
         await updateProfile(user, { displayName });
 
-        // Try to save user data to Firestore (may fail if permissions are restricted)
+        // Determine role based on email - admin emails get Operator role
+        const isAdminEmail = email.toLowerCase().includes('admin') || 
+                            email.toLowerCase() === 'wizhomes1@gmail.com' ||
+                            email.toLowerCase() === 'nana@wizhomes.com';
+        const userRole = isAdminEmail ? 'Operator' : 'Guest';
+
+        // Save user data to Firestore
         try {
           await setDoc(doc(db, 'users', user.uid), {
             uid: user.uid,
             email: user.email,
             displayName,
-            role: 'Guest',
+            role: userRole,
             joinedAt: new Date().toISOString()
           });
         } catch (firestoreErr) {
           console.warn("Could not save user data to Firestore:", firestoreErr);
+        }
+
+        // If admin, redirect to admin page
+        if (isAdminEmail) {
+          localStorage.setItem('wiz_admin_session', 'true');
+          navigate('/admin');
+        } else {
+          navigate('/rooms');
         }
       } else {
         await signInWithEmailAndPassword(auth, email, password);
