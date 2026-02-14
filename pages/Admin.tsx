@@ -257,24 +257,34 @@ const Admin: React.FC<AdminProps> = ({ theme, toggleTheme, onLogout }) => {
                 <table className="w-full text-left">
                   <thead>
                     <tr className="border-b dark:border-zinc-800">
-                      <th className="px-12 py-10 text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400">Identity</th>
+                      <th className="px-12 py-10 text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400">Guest Details</th>
+                      <th className="px-12 py-10 text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400">Stay Period</th>
                       <th className="px-12 py-10 text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400">Financials</th>
-                      <th className="px-12 py-10 text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400">Market Control</th>
+                      <th className="px-12 py-10 text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400">Status</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y dark:divide-zinc-800">
                     {(activeTab === 'rooms' ? rooms : bookings).map((item: any) => (
                       <tr key={item.id} className="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 transition-colors group">
                         <td className="px-12 py-10">
-                          <div className="flex items-center space-x-8">
-                            <div className="w-24 h-20 rounded-2xl overflow-hidden border-2 border-zinc-100 dark:border-zinc-800 flex-shrink-0 relative bg-zinc-100 dark:bg-zinc-800">
-                              <img src={item.imageUrl || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=100'} className="w-full h-full object-cover" alt="" />
+                          {activeTab === 'rooms' ? (
+                            <div className="flex items-center space-x-8">
+                              <div className="w-24 h-20 rounded-2xl overflow-hidden border-2 border-zinc-100 dark:border-zinc-800 flex-shrink-0 relative bg-zinc-100 dark:bg-zinc-800">
+                                <img src={item.imageUrl || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=100'} className="w-full h-full object-cover" alt="" />
+                              </div>
+                              <div>
+                                <p className="font-black text-zinc-950 dark:text-white uppercase tracking-tighter text-xl">{item.name}</p>
+                                <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mt-2">ID: {item.id}</p>
+                              </div>
                             </div>
+                          ) : (
                             <div>
-                              <p className="font-black text-zinc-950 dark:text-white uppercase tracking-tighter text-xl">{activeTab === 'rooms' ? item.name : item.guestName}</p>
-                              <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mt-2">ID: {item.id}</p>
+                              <p className="font-black text-zinc-950 dark:text-white uppercase tracking-tighter text-lg">{item.guestName}</p>
+                              <p className="text-zinc-500 text-[10px] font-bold mt-1">{item.guestEmail}</p>
+                              <p className="text-zinc-400 text-[10px] font-bold mt-1">{item.guestPhone}</p>
+                              <p className="text-zinc-500 text-[9px] font-black uppercase tracking-widest mt-2">Ref: {item.paymentReference}</p>
                             </div>
-                          </div>
+                          )}
                         </td>
                         <td className="px-12 py-10">
                           {activeTab === 'rooms' ? (
@@ -283,22 +293,35 @@ const Admin: React.FC<AdminProps> = ({ theme, toggleTheme, onLogout }) => {
                             </div>
                           ) : (
                             <div className="space-y-1">
-                               <p className="font-black text-zinc-950 dark:text-white text-sm tracking-tight">GH₵{item.total}</p>
-                               <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">{item.checkIn} — {item.checkOut}</p>
+                              <p className="font-black text-zinc-950 dark:text-white text-sm tracking-tight">{item.checkIn} — {item.checkOut}</p>
+                              <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">{item.guests} Guest{item.guests > 1 ? 's' : ''}</p>
                             </div>
                           )}
                         </td>
                         <td className="px-12 py-10">
-                          <div className="flex items-center space-x-3">
-                            <button className={`px-5 py-2.5 border-2 rounded-xl text-[9px] font-black uppercase tracking-widest ${getStatusColor(item.status)}`}>
-                              {item.status}
-                            </button>
-                            {activeTab === 'rooms' && (
+                          {activeTab === 'rooms' ? (
+                            <div className="flex items-center space-x-3">
+                              <button className={`px-5 py-2.5 border-2 rounded-xl text-[9px] font-black uppercase tracking-widest ${getStatusColor(item.status)}`}>
+                                {item.status}
+                              </button>
                               <button onClick={() => setViewingRoom(item)} className="p-3 bg-white dark:bg-zinc-800 rounded-xl text-zinc-950 dark:text-white border border-zinc-200 dark:border-zinc-700">
                                 <Icons.View />
                               </button>
-                            )}
-                          </div>
+                            </div>
+                          ) : (
+                            <div className="space-y-1">
+                              <p className="font-black text-zinc-950 dark:text-white text-2xl tracking-tighter">GH₵{item.total}</p>
+                            </div>
+                          )}
+                        </td>
+                        <td className="px-12 py-10">
+                          {activeTab === 'rooms' ? null : (
+                            <div className="flex items-center space-x-3">
+                              <button className={`px-5 py-2.5 border-2 rounded-xl text-[9px] font-black uppercase tracking-widest ${getStatusColor(item.status)}`}>
+                                {item.status}
+                              </button>
+                            </div>
+                          )}
                         </td>
                       </tr>
                     ))}
