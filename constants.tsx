@@ -67,12 +67,12 @@ export const MOCK_ROOMS: Room[] = [
     priceFrequency: 'month',
     status: RoomStatus.AVAILABLE,
     amenities: UNIFORM_AMENITIES,
-    imageUrl: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=1200',
+    imageUrl: '/wiz urban residence 1.jpeg',
     gallery: [
-      'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=1200',
-      'https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&q=80&w=1200',
-      'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&q=80&w=1200',
-      'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&q=80&w=1200'
+      '/wiz urban residence 1.jpeg',
+      '/urban residence 2.jpeg',
+      '/urban residence 3.jpeg',
+      '/urban residence 4.jpeg'
     ],
     rating: 4.7,
     location: 'Wiz Homes',
