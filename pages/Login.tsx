@@ -48,13 +48,13 @@ const Login: React.FC = () => {
 
     try {
       if (isRegistering) {
-        // Fix: Using auth methods from local firebase config
+        // Create user in Firebase Auth
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
         
         await updateProfile(user, { displayName });
 
-        // Determine role based on email - admin emails get Operator role
+        // Determine role based on email
         const isAdminEmail = email.toLowerCase().includes('admin') || 
                             email.toLowerCase() === 'wizhomes1@gmail.com' ||
                             email.toLowerCase() === 'nana@wizhomes.com' ||
@@ -74,7 +74,7 @@ const Login: React.FC = () => {
           console.warn("Could not save user data to Firestore:", firestoreErr);
         }
 
-        // If admin, redirect to admin page
+        // Redirect based on email
         if (isAdminEmail) {
           localStorage.setItem('wiz_admin_session', 'true');
           navigate('/admin');
@@ -82,16 +82,20 @@ const Login: React.FC = () => {
           navigate('/rooms');
         }
       } else {
+        // Sign in
         await signInWithEmailAndPassword(auth, email, password);
         
-        // Check if this is the default admin email
-        if (email.toLowerCase() === DEFAULT_ADMIN_EMAIL) {
+        // Check if this is admin email - grant access directly
+        if (email.toLowerCase().includes('admin') || 
+            email.toLowerCase() === 'wizhomes1@gmail.com' ||
+            email.toLowerCase() === 'nana@wizhomes.com' ||
+            email.toLowerCase() === DEFAULT_ADMIN_EMAIL) {
           localStorage.setItem('wiz_admin_session', 'true');
           navigate('/admin');
           return;
         }
         
-        // Check user role and redirect accordingly
+        // For non-admin emails, check Firestore role
         try {
           const userDoc = await getDoc(doc(db, 'users', auth.currentUser?.uid));
           if (userDoc.exists() && userDoc.data().role === 'Operator') {
@@ -101,7 +105,6 @@ const Login: React.FC = () => {
             navigate('/rooms');
           }
         } catch (err) {
-          // If we can't check role, just go to rooms
           navigate('/rooms');
         }
       }
