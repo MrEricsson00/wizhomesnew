@@ -183,14 +183,28 @@ const ProtectedRoute: React.FC<{
 const AppContent = () => {
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
   const [user, setUser] = useState<any | null>(null);
-  const [role, setRole] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [role, setRole] = useState<string | null>(() => {
+    // Check for admin session immediately on initialization
+    if (typeof window !== 'undefined' && localStorage.getItem('wiz_admin_session') === 'true') {
+      return 'Operator';
+    }
+    return null;
+  });
+  const [loading, setLoading] = useState<boolean>(() => {
+    // Don't show loading if we already have admin session
+    if (typeof window !== 'undefined' && localStorage.getItem('wiz_admin_session') === 'true') {
+      return false;
+    }
+    return true;
+  });
 
   useEffect(() => {
     // Check for default admin session first (works without Firebase)
     const adminSession = localStorage.getItem('wiz_admin_session');
     if (adminSession === 'true') {
       setRole('Operator');
+      setLoading(false);
+      return;
     }
 
     // Fix: Using onAuthStateChanged from centralized firebase module
