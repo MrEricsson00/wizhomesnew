@@ -78,7 +78,18 @@ const Login: React.FC = () => {
       }
     } catch (err: any) {
       console.error("Authentication process failure:", err);
-      setError(err.message || 'Authentication failed. Please check your credentials.');
+      // Provide more user-friendly error messages
+      if (err.code === 'auth/invalid-credential') {
+        setError('Invalid email or password. Please check your credentials or create a new account.');
+      } else if (err.code === 'auth/email-already-in-use') {
+        setError('This email is already registered. Please sign in or use a different email.');
+      } else if (err.code === 'auth/weak-password') {
+        setError('Password should be at least 6 characters.');
+      } else if (err.code === 'auth/invalid-email') {
+        setError('Please enter a valid email address.');
+      } else {
+        setError(err.message || 'Authentication failed. Please check your credentials.');
+      }
     } finally {
       setIsLoading(false);
     }
