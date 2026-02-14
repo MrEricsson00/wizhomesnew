@@ -220,7 +220,27 @@ const Admin: React.FC<AdminProps> = ({ theme, toggleTheme, onLogout }) => {
         </div>
       </aside>
 
-      <main className="flex-grow p-8 md:p-16 overflow-y-auto">
+      {/* Mobile Navigation */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-zinc-950 dark:bg-black border-t border-zinc-800 z-50">
+        <nav className="flex justify-around py-4">
+          {[
+            { id: 'dashboard', label: 'Dashboard', icon: <Icons.Dashboard /> },
+            { id: 'rooms', label: 'Inventory', icon: <Icons.Home /> },
+            { id: 'bookings', label: 'Bookings', icon: <Icons.Check /> }
+          ].map((tab) => (
+            <button 
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)} 
+              className={`flex flex-col items-center space-y-1 px-4 py-2 rounded-xl transition-all ${activeTab === tab.id ? 'text-red-500' : 'text-zinc-500'}`}
+            >
+              <div className={activeTab === tab.id ? 'text-red-500' : 'text-zinc-500'}>{tab.icon}</div>
+              <span className="text-[8px] uppercase tracking-wider font-black">{tab.label}</span>
+            </button>
+          ))}
+        </nav>
+      </div>
+
+      <main className="flex-grow p-8 md:p-16 overflow-y-auto pb-24 lg:pb-8">
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-10 mb-20">
           <div>
             <h1 className="text-5xl font-black text-zinc-950 dark:text-white uppercase tracking-tighter">{activeTab}</h1>
