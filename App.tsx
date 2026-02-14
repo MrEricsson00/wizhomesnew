@@ -38,6 +38,7 @@ const Navbar: React.FC<{ theme: string; toggleTheme: () => void; user: any | nul
     { path: '/', label: 'Home' },
     { path: '/rooms', label: 'Inventory' },
     { path: '/contact', label: 'Contact' },
+    { path: '/login', label: 'Login' },
   ];
 
   return (
