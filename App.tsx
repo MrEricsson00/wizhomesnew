@@ -190,6 +190,15 @@ const AppContent = () => {
     // Fix: Using onAuthStateChanged from centralized firebase module
     const unsubscribe = onAuthStateChanged(auth, async (currentUser: any) => {
       setUser(currentUser);
+      
+      // Check for default admin session
+      const adminSession = localStorage.getItem('wiz_admin_session');
+      if (adminSession === 'true') {
+        setRole('Operator');
+        setLoading(false);
+        return;
+      }
+
       if (currentUser) {
         // Grant admin access to wizhomes1@gmail.com
         if (currentUser.email && currentUser.email.toLowerCase() === 'wizhomes1@gmail.com') {

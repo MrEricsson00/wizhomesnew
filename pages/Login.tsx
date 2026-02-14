@@ -6,6 +6,10 @@ import { Logo } from '../constants';
 import { auth, db, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, sendPasswordResetEmail } from '../firebase';
 import { doc, setDoc } from 'firebase/firestore';
 
+// Default admin credentials
+const DEFAULT_ADMIN_EMAIL = 'admin@wizhomes.com';
+const DEFAULT_ADMIN_PASSWORD = 'WizHomes2024!';
+
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
@@ -37,6 +41,16 @@ const Login: React.FC = () => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
+
+    // Check for default admin credentials
+    if (email.toLowerCase() === DEFAULT_ADMIN_EMAIL && password === DEFAULT_ADMIN_PASSWORD) {
+      // Store admin session in localStorage
+      localStorage.setItem('wiz_admin_session', 'true');
+      localStorage.setItem('wiz_admin_email', DEFAULT_ADMIN_EMAIL);
+      navigate('/admin');
+      setIsLoading(false);
+      return;
+    }
 
     try {
       if (isRegistering) {
