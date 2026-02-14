@@ -190,17 +190,22 @@ const AppContent = () => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser: any) => {
       setUser(currentUser);
       if (currentUser) {
-        try {
-          const docRef = doc(db, 'users', currentUser.uid);
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            setRole(docSnap.data().role);
-          } else {
+        // Grant admin access to wizhomes1@gmail.com
+        if (currentUser.email && currentUser.email.toLowerCase() === 'wizhomes1@gmail.com') {
+          setRole('Operator');
+        } else {
+          try {
+            const docRef = doc(db, 'users', currentUser.uid);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+              setRole(docSnap.data().role);
+            } else {
+              setRole('Guest');
+            }
+          } catch (error) {
+            console.error("Error fetching user document", error);
             setRole('Guest');
           }
-        } catch (error) {
-          console.error("Error fetching user document", error);
-          setRole('Guest');
         }
       } else {
         setRole(null);
