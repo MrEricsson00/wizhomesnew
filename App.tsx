@@ -227,22 +227,24 @@ const AppContent = () => {
       }
 
       if (currentUser) {
-        // Grant admin access to wizhomes1@gmail.com
-        if (currentUser.email && currentUser.email.toLowerCase() === 'wizhomes1@gmail.com') {
-          setRole('Operator');
-        } else {
-          try {
-            const docRef = doc(db, 'users', currentUser.uid);
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
-              setRole(docSnap.data().role);
+        // Check user's role from Firestore
+        try {
+          const docRef = doc(db, 'users', currentUser.uid);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            const userRole = docSnap.data().role;
+            // Grant admin access if role is Operator or Admin
+            if (userRole === 'Operator' || userRole === 'Admin') {
+              setRole(userRole);
             } else {
-              setRole('Guest');
+              setRole(userRole || 'Guest');
             }
-          } catch (error) {
-            console.error("Error fetching user document", error);
+          } else {
             setRole('Guest');
           }
+        } catch (error) {
+          console.error("Error fetching user document", error);
+          setRole('Guest');
         }
       } else {
         setRole(null);

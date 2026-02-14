@@ -4,11 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import { Logo } from '../constants';
 // Fix: Importing auth methods from centralized local firebase module to fix export member errors
 import { auth, db, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, sendPasswordResetEmail } from '../firebase';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 
-// Default admin credentials
-const DEFAULT_ADMIN_EMAIL = 'admin@wizhomes.com';
-const DEFAULT_ADMIN_PASSWORD = 'Nana==@8';
+// NOTE: Admin credentials are now managed in Firebase Firestore
+// To set up an admin user:
+// 1. Create a user account using the registration form
+// 2. Manually update their role to "Operator" in Firestore collection "users"
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -42,16 +43,6 @@ const Login: React.FC = () => {
     setIsLoading(true);
     setError(null);
 
-    // Check for default admin credentials
-    if (email.toLowerCase() === DEFAULT_ADMIN_EMAIL && password === DEFAULT_ADMIN_PASSWORD) {
-      // Store admin session in localStorage
-      localStorage.setItem('wiz_admin_session', 'true');
-      localStorage.setItem('wiz_admin_email', DEFAULT_ADMIN_EMAIL);
-      navigate('/admin');
-      setIsLoading(false);
-      return;
-    }
-
     try {
       if (isRegistering) {
         // Fix: Using auth methods from local firebase config
@@ -74,10 +65,17 @@ const Login: React.FC = () => {
         }
       } else {
         await signInWithEmailAndPassword(auth, email, password);
-        // Redirect admins to admin page
-        if (email.toLowerCase() === 'wizhomes1@gmail.com' || email.toLowerCase() === DEFAULT_ADMIN_EMAIL) {
-          navigate('/admin');
-        } else {
+        // Check user role and redirect accordingly
+        try {
+          const userDoc = await getDoc(doc(db, 'users', auth.currentUser?.uid));
+          if (userDoc.exists() && userDoc.data().role === 'Operator') {
+            localStorage.setItem('wiz_admin_session', 'true');
+            navigate('/admin');
+          } else {
+            navigate('/rooms');
+          }
+        } catch (err) {
+          // If we can't check role, just go to rooms
           navigate('/rooms');
         }
       }
