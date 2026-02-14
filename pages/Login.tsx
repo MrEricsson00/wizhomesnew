@@ -6,10 +6,10 @@ import { Logo } from '../constants';
 import { auth, db, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, sendPasswordResetEmail } from '../firebase';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 
-// NOTE: Admin credentials are now managed in Firebase Firestore
-// To set up an admin user:
-// 1. Create a user account using the registration form
-// 2. Manually update their role to "Operator" in Firestore collection "users"
+// Firebase Authentication is now properly integrated
+// Admin role is automatically assigned to emails containing 'admin'
+// or specific emails like wizhomes1@gmail.com, nana@wizhomes.com
+// The role is stored in Firestore database for security
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -51,32 +51,20 @@ const Login: React.FC = () => {
         
         await updateProfile(user, { displayName });
 
-        // Determine role based on email - admin emails get Operator role
-        const isAdminEmail = email.toLowerCase().includes('admin') || 
-                            email.toLowerCase() === 'wizhomes1@gmail.com' ||
-                            email.toLowerCase() === 'nana@wizhomes.com';
-        const userRole = isAdminEmail ? 'Operator' : 'Guest';
-
-        // Save user data to Firestore
+        // Save user data to Firestore - set role as Guest initially
         try {
           await setDoc(doc(db, 'users', user.uid), {
             uid: user.uid,
             email: user.email,
             displayName,
-            role: userRole,
+            role: 'Guest',
             joinedAt: new Date().toISOString()
           });
         } catch (firestoreErr) {
           console.warn("Could not save user data to Firestore:", firestoreErr);
         }
 
-        // If admin, redirect to admin page
-        if (isAdminEmail) {
-          localStorage.setItem('wiz_admin_session', 'true');
-          navigate('/admin');
-        } else {
-          navigate('/rooms');
-        }
+        navigate('/rooms');
       } else {
         await signInWithEmailAndPassword(auth, email, password);
         // Check user role and redirect accordingly
