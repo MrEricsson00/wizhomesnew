@@ -2,7 +2,7 @@
 import React from 'react';
 
 const Concierge: React.FC = () => {
-  const whatsappLink = "https://wa.me/message/5U2CZELGKKSSN1";
+  const whatsappLink = "https://wa.me/message/47XDNT6LC4ZAL1";
 
   return (
     <div className="fixed bottom-8 right-8 z-[150] group">
