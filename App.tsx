@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { MemoryRouter, Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
+import { MemoryRouter, Routes, Route, Link, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { Icons, Logo } from './constants';
 import Home from './pages/Home';
 import Rooms from './pages/Rooms';
@@ -13,7 +13,7 @@ import Login from './pages/Login';
 import Profile from './pages/Profile';
 import Concierge from './components/Concierge';
 // Fix: Import onAuthStateChanged from centralized local firebase module to fix export error
-import { auth, db, onAuthStateChanged } from './firebase';
+import { auth, db, onAuthStateChanged, signOut } from './firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 // Default admin configuration
@@ -47,7 +47,18 @@ const Navbar: React.FC<{ theme: string; toggleTheme: () => void; user: any | nul
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const isHidden = location.pathname === '/login' || location.pathname === '/checkout' || location.pathname === '/success';
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      localStorage.removeItem('wiz_admin_session');
+      navigate('/');
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -65,7 +76,7 @@ const Navbar: React.FC<{ theme: string; toggleTheme: () => void; user: any | nul
     { path: '/', label: 'Home' },
     { path: '/rooms', label: 'Inventory' },
     { path: '/contact', label: 'Contact' },
-    { path: '/login', label: 'Login' },
+    { path: user ? '#' : '/login', label: user ? 'Logout' : 'Login', onClick: user ? handleLogout : undefined },
   ];
 
   return (
@@ -84,6 +95,7 @@ const Navbar: React.FC<{ theme: string; toggleTheme: () => void; user: any | nul
                 <Link
                   key={link.path}
                   to={link.path}
+                  onClick={link.onClick}
                   className={`relative px-4 py-2 text-sm font-medium transition-colors duration-200 ${location.pathname === link.path
                     ? 'text-red-600 dark:text-red-500'
                     : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
@@ -158,7 +170,13 @@ const Navbar: React.FC<{ theme: string; toggleTheme: () => void; user: any | nul
               <Link
                 key={link.path}
                 to={link.path}
-                onClick={toggleMenu}
+                onClick={(e) => {
+                  if (link.onClick) {
+                    e.preventDefault();
+                    link.onClick();
+                  }
+                  toggleMenu();
+                }}
                 className={`text-3xl font-bold tracking-tight py-3 transition-colors duration-200 ${
                   location.pathname === link.path
                     ? 'text-red-600 dark:text-red-500'
